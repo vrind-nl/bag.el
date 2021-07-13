@@ -1,0 +1,70 @@
+#+TITLE: bag.el
+#+DATE: 2021-07-10
+
+=bag.el=, pronounced //ˈbeɪɡl̩//, helps to maintain a library of links by taking a URL, fetching a title and some tags, an creating an org-mode section header with them. So, =https://gnu.org= gives:
+
+=[[https://gnu.org][The GNU Operating System and the Free Software Movement]] :gnu:editors:=
+
+* Conventions
+
+In this package a library with links is called a "bag". Changing a URL to a link with tags is called "bagging".
+
+The title for a URL is derived from the contents of the =<title>= element or the first =<h1>=.
+
+* Main functions
+
+- =bag-lap= (/link at point/) :: replaces the URL at point with an org-mode link, including tags
+- =bag-replace-all= :: replaces all URLs in the current buffer using =bag-lap=
+
+* Installation
+
+=bag.el= is not on MELPA yet. You can install it by cloning this repo (or downloading the =bag.el= file) and =require= it.
+
+I use [[https://jwiegley.github.io/use-package/keywords/][use-package]] package configuration with [[https://github.com/raxod502/straight.el][straight]] package manager and install =bag.el= with:
+
+#+begin_src emacs-lisp
+  (use-package bag
+    :straight (bag
+               :type git
+               :host github
+               :repo "vrind-nl/bag.el"
+               :branch "master"
+               :files ("bag.el"))
+    :config
+    (define-key mode-specific-map "a" 'bag-lap)
+    (define-key mode-specific-map "A" 'bag-replace-all)
+    (setq bag-tags
+          '("gnu"
+            ("editors" ("emacs" "vi"))
+            ("dev" (nil "lisp" "python"))))
+    )
+#+end_src
+
+* Customization
+
+- bag-tags :: a list of
+  - tags
+  - tags and keywords that indicate that tag.
+    By default the tag itself is also a keyword, unless the first keyword is =nil=.
+  For example:
+  #+begin_src emacs-lisp
+    (setq bag-tags                           ;; keywords become:
+          '("gnu"                            ;; ("gnu")
+            ("editors" ("emacs" "vi"))       ;; ("editors" "emacs" "vi")
+            ("dev" (nil "lisp" "python"))))  ;; ("lisp" "python")
+  #+end_src
+  The package comes with this example value for =bag-tags= but you probably want to provide your own.
+
+* Roadmap
+
+I consider the current version (0.0.2) a minimal viable product. It's just enough to scratch my itch, but could be much better.
+
+Some improvements I am considering:
+- Handle existing org-mode links :: org-mode links are handled incorrectly at the moment: =bag-lap= just replaces the URL in the link with another link
+- Re-use links :: I would like to check if the URL is already bagged and reuse title and tags, if any.
+
+Suggestions are welcome.
+
+* Considerations
+
+I could have used a package like [[https://github.com/zweifisch/enlive][enlive]], but I like to keep dependencies to a minimum. Also, this project served as practice, so I wanted to stick to core elisp as much as possible.
